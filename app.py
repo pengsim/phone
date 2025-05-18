@@ -10,9 +10,9 @@ CORS(app)
 
 # Cloudinary config
 cloudinary.config(
-    cloud_name='YOUR_CLOUD_NAME',
-    api_key='YOUR_API_KEY',
-    api_secret='YOUR_API_SECRET'
+    cloud_name='da48norud',
+    api_key='471772216243935',
+    api_secret='CLOUDINARY_URL=cloudinary://471772216243935:Q0pjsE2NHowI3ycLo8pdWkpT1GA@da48norud'
 )
 
 # MySQL config
