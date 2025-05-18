@@ -4,15 +4,14 @@ import pymysql
 import cloudinary
 import cloudinary.uploader
 
-# Flask app setup
 app = Flask(__name__)
 CORS(app)
 
-# Cloudinary config
+# ✅ Cloudinary config ត្រូវតែដាក់ជា api_key, api_secret បែបនេះ
 cloudinary.config(
     cloud_name='da48norud',
     api_key='471772216243935',
-    api_secret='CLOUDINARY_URL=cloudinary://471772216243935:Q0pjsE2NHowI3ycLo8pdWkpT1GA@da48norud'
+    api_secret='Q0pjsE2NHowI3ycLo8pdWkpT1GA'  # 🛑 ដាច់ api_secret ត្រឹមនេះ
 )
 
 # MySQL config
@@ -22,7 +21,7 @@ app.config['MYSQL_USER'] = 'avnadmin'
 app.config['MYSQL_PASSWORD'] = 'AVNS_rdTIwRKaGJtBXhX9MSL'
 app.config['MYSQL_DB'] = 'defaultdb'
 
-# DB connection function
+# Function ចាប់ភ្ជាប់ database
 def get_database():
     return pymysql.connect(
         host=app.config['MYSQL_HOST'],
@@ -34,7 +33,7 @@ def get_database():
         cursorclass=pymysql.cursors.DictCursor
     )
 
-# Get all phones
+# ✅ Route ទាញទិន្នន័យទូរស័ព្ទ
 @app.route('/phones', methods=['GET'])
 def get_phones():
     conn = get_database()
@@ -44,7 +43,7 @@ def get_phones():
     conn.close()
     return jsonify(rows)
 
-# Add new phone (upload image to Cloudinary)
+# ✅ Route បន្ថែមទូរស័ព្ទ (upload រូបភាពទៅ Cloudinary)
 @app.route('/add', methods=['POST'])
 def add_phone():
     model = request.form.get('model')
@@ -56,7 +55,7 @@ def add_phone():
     image_url = ''
     if image_file and image_file.filename != '':
         upload_result = cloudinary.uploader.upload(image_file)
-        image_url = upload_result['secure_url']
+        image_url = upload_result.get('secure_url', '')
 
     conn = get_database()
     cur = conn.cursor()
@@ -66,10 +65,9 @@ def add_phone():
     )
     conn.commit()
     conn.close()
-
     return jsonify({'message': 'Phone added successfully'})
 
-# Edit phone (optionally update image)
+# ✅ Route កែប្រែទូរស័ព្ទ
 @app.route('/edit/<int:id>', methods=['POST'])
 def edit_phone(id):
     model = request.form.get('model')
@@ -83,7 +81,7 @@ def edit_phone(id):
 
     if image_file and image_file.filename != '':
         upload_result = cloudinary.uploader.upload(image_file)
-        image_url = upload_result['secure_url']
+        image_url = upload_result.get('secure_url', '')
         cur.execute(
             'UPDATE phone SET model=%s, color=%s, price=%s, image=%s, detail=%s WHERE phone_id=%s',
             (model, color, price, image_url, detail, id)
@@ -98,7 +96,7 @@ def edit_phone(id):
     conn.close()
     return jsonify({'message': 'Phone updated successfully'})
 
-# Delete phone
+# ✅ Route លុបទូរស័ព្ទ
 @app.route('/delete/<int:id>', methods=['DELETE'])
 def delete_phone(id):
     conn = get_database()
@@ -108,5 +106,6 @@ def delete_phone(id):
     conn.close()
     return jsonify({'message': 'Phone deleted successfully'})
 
+# ✅ Run server
 if __name__ == '__main__':
-    app.run(host='0.0.0.0' , port=5000)
+    app.run(host='0.0.0.0', port=5000)
